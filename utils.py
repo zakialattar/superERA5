@@ -50,9 +50,9 @@ def prepare_predictand(data_sets,data_path,time_reindex=True):
         length_all.append(len(data.time))
     
     length_all = np.array(length_all)
-    Y = xr.concat(Y_all,dim='time').mean('member')
+    Y = xr.concat(Y_all,dim='time')
     # Y = xr.concat([xr.open_dataset(data_path + f"outputs_{file}.nc") for file in data_sets], dim='time').mean("member")
-    Y = Y.rename({'lon':'longitude','lat': 'latitude'}).transpose('time','latitude', 'longitude').drop(['quantile'])
+    Y = Y.rename({'lon':'longitude','lat': 'latitude'}).transpose('time','latitude', 'longitude')
     if time_reindex:
         Y = Y.assign_coords(time=np.arange(len(Y.time)))
     
