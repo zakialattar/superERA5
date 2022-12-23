@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import xarray as xr
+import bottleneck
 from glob import glob
 
 
@@ -25,11 +26,14 @@ def prepare_predictor(data_sets, data_path,time_reindex=True):
     length_all = []
     
     for file in data_sets:
-        data = xr.open_dataset(os.path.join(data_path, f"inputs_{file}.nc"))
+        data = xr.open_dataset(os.path.join(data_path, f"inputs_{file}.nc")).ffill(dim="time", limit=1)
+        if "longitude" in data.coords:
+            data = data.rename({'longitude':'lon','latitude': 'lat'})
         X_all.append(data)
         length_all.append(len(data.time))
     
     X = xr.concat(X_all,dim='time')
+
     length_all = np.array(length_all)
     # X = xr.concat([xr.open_dataset(data_path + f"inputs_{file}.nc") for file in data_sets], dim='time')
     if time_reindex:
@@ -46,13 +50,15 @@ def prepare_predictand(data_sets,data_path,time_reindex=True):
     
     for file in data_sets:
         data = xr.open_dataset(os.path.join(data_path, f"outputs_{file}.nc"))
+        if "directIrradiance" in data.variables:
+            data = data.rename({"directIrradiance":"poa"})
         Y_all.append(data)
         length_all.append(len(data.time))
     
     length_all = np.array(length_all)
     Y = xr.concat(Y_all,dim='time')
     # Y = xr.concat([xr.open_dataset(data_path + f"outputs_{file}.nc") for file in data_sets], dim='time').mean("member")
-    Y = Y.rename({'lon':'longitude','lat': 'latitude'}).transpose('time','latitude', 'longitude')
+    Y = Y.transpose('time','lat', 'lon')
     if time_reindex:
         Y = Y.assign_coords(time=np.arange(len(Y.time)))
     
