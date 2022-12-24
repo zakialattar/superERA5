@@ -3,6 +3,5 @@ train_val.tar.gz
 Data/.DS_Store
 .DS_Store
 .DS_Store
-train_val.tar.gz.1
-test.tar.gz
 *.nc
+*.csv
