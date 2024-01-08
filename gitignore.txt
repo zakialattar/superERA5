@@ -1,0 +1,7 @@
+
+train_val.tar.gz
+Data/.DS_Store
+.DS_Store
+.DS_Store
+*.nc
+*.csv
